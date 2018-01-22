@@ -25,15 +25,21 @@ saveRDS(presences, "data/cicendia_filiformis.rds")
 ### Read in the data ###
 presences <- readRDS("data/cicendia_filiformis.rds")
 
-bioclim <- getData('worldclim', download=FALSE, path="data", var='bio', res=5)  
+bioclim <- getData('worldclim', download=FALSE, path="data", var='bio', res=5) ### Use 'download = TRUE' at the first time! 
 projection(bioclim)
+
+data(wrld_simpl)  ### ?wrld_simpl
+projection(wrld_simpl)
+
+projection(wrld_simpl) <- projection(bioclim)
 
 ### ALWAYS plot the data to see if everything is ok!
 plot(bioclim)
 
+### Create spatial points dataframe
 presences <- SpatialPoints(presences[,c("decimalLongitude", "decimalLatitude")], proj4string=CRS(projection(bioclim)))
 
-data(wrld_simpl)  ### ?wrld_simpl
+
 
 x11()
 plot(wrld_simpl)
@@ -48,13 +54,10 @@ x11()
 plot(europe)
 points(decimalLatitude ~ decimalLongitude, data=presences, pch=16, cex=0.5, col="red")
 
-projection(presences) <- projection(europe)
-projection(europe)
-
 saveRDS(europe, "data/euro_shp.rds")
 
 ### Exclude presence data outside the region ####
-presences_europe <- presences[is.na(over(europe,presences)),]
+presences_europe <- presences[is.na(over(europe, presences)),]  
 
 x11()
 plot(europe)
@@ -147,7 +150,7 @@ mtext(paste0("Pearson r² = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
 ### Add legend!
 
 ### Climate change projection ####
-cc <- getData('CMIP5', var="bio", res=5, rcp=85, model='HD', year=70, download=TRUE)
+cc <- getData('CMIP5', var="bio", res=5, rcp=85, model='HD', year=70, download=TRUE, path="data")
 cc <- crop(cc, bioclim_europe)
 cc <- mask(cc, bioclim_europe)
 names(cc) <- names(bioclim_europe)
