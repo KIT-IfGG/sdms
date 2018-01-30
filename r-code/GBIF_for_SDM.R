@@ -10,7 +10,7 @@ library(classInt)
 
 ### Get species data ####
 key <- name_suggest(q='Cicendia filiformis', rank='species')$key[1]
-n <- occ_count(taxonKey=key, georeferenced=TRUE)
+n <- occ_count(taxonKey=key, georeferenced=TRUE); n
 presences <- occ_search(taxonKey=key, limit=n)
 head(presences$data)
 
@@ -25,21 +25,21 @@ saveRDS(presences, "data/cicendia_filiformis.rds")
 ### Read in the data ###
 presences <- readRDS("data/cicendia_filiformis.rds")
 
+### Bioclim data at coarse resolution can be dowloaded within R
 bioclim <- getData('worldclim', download=FALSE, path="data", var='bio', res=5) ### Use 'download = TRUE' at the first time! 
 projection(bioclim)
 
 data(wrld_simpl)  ### ?wrld_simpl
 projection(wrld_simpl)
 
+### Same projection but different projection string, fix
 projection(wrld_simpl) <- projection(bioclim)
 
 ### ALWAYS plot the data to see if everything is ok!
-plot(bioclim)
+plot(bioclim[[3]])
 
 ### Create spatial points dataframe
 presences <- SpatialPoints(presences[,c("decimalLongitude", "decimalLatitude")], proj4string=CRS(projection(bioclim)))
-
-
 
 x11()
 plot(wrld_simpl)
@@ -69,6 +69,7 @@ bioclim_europe <- mask(bioclim_europe, europe)
 
 saveRDS(bioclim_europe, "data/bioclim_euro.rds")
 
+### Create background points for the model ####
 background <- randomPoints(bioclim_europe, 20000)
 #me <- maxent(bioclim_europe, presences_europe@coords, background)
 
