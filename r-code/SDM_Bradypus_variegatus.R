@@ -169,6 +169,23 @@ bradypus_distribution[bradypus_distribution[]<th] <- 0
 x11()
 plot(bradypus_distribution, main=round(th,2))
 
+### Variable importance ####
+library(hier.part)
+
+### GLM: Numbers given in the table and figure.
+hp <- hier.part(sdmdata$pb, sdmdata[,c("bio1", "bio5", "bio12")], family=binomial)
+box()
+hp$I.perc
+
+### MaxEnt: "Analysis of variable contributions"; in your browser.
+me
+
+### BRT: Numbers given in the table and figure.
+summary(brt) 
+
+### BioClim: ...?
+summary(bc) 
+
 ### Part III ####
 
 ### Validation: k-fold data partitioning ####
@@ -193,19 +210,4 @@ round(sd(auc),2)
 round(median(auc),2)
 round(cv(auc),2)
 
-### Variable importance ####
-library(hier.part)
 
-### GLM: Numbers given in the table and figure.
-hp <- hier.part(sdmdata$pb, sdmdata[,c("bio1", "bio5", "bio12")], family=binomial)
-box()
-hp$I.perc
-
-### MaxEnt: "Analysis of variable contributions"; in your browser.
-me
-
-### BRT: Numbers given in the table and figure.
-summary(brt) 
-
-### BioClim: ...?
-summary(bc) 
