@@ -104,10 +104,10 @@ p.brt <- predict(predictors, brt, n.trees=10, type="response")
 
 x11()
 par(mfrow=c(2,2))
-plot(p.m1)
-plot(p.bc)
-plot(p.me)
-plot(p.brt)
+plot(p.m1, main=class(m1)[1])
+plot(p.bc, main=class(bc)[1])
+plot(p.me, main=class(me)[1])
+plot(p.brt, , main=class(brt)[1])
 dev.off()
 
 graphics.off()  ### Close all graphic devices
@@ -131,10 +131,19 @@ dat$pred <- predict(bc, dat)   ### Calculate modelled "probability" of occurranc
 names(dat)
 dat[1:10,c("pb", "pred")]
 
-x11()
-boxplot(dat$pred ~ dat$pb)
-stripchart(dat$pred ~ dat$pb)
-plot(dat$pred ~ dat$pb)
+x11(width=8, height=6)
+par(mfrow=c(1,2))
+boxplot(pred ~ pb, dat, col=c("red", "blue"))
+grid()
+#stripchart(pred ~ pb, dat)
+pcol <- rgb(0,0,1,0.4)
+acol <- rgb(1,0,0,0.6)
+hist(dat$pred[dat$pb==0], col=acol, border="red", freq=F, main="")
+hist(dat$pred[dat$pb==1], add=TRUE, , col=pcol, border="white", , freq=F)
+legend("topright", legend=c("Presences", "Absences"), col=c(pcol, acol), pch=15, pt.cex=2)
+grid()
+box()
+dev.off()
 
 ### Similar to the density plot. Distribution of predicted occurrence probabilities.
 x11()
