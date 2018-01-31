@@ -36,7 +36,7 @@ projection(wrld_simpl)
 projection(wrld_simpl) <- projection(bioclim)
 
 ### ALWAYS plot the data to see if everything is ok!
-plot(bioclim[[3]])
+plot(bioclim)
 
 ### Create spatial points dataframe
 presences <- SpatialPoints(presences[,c("decimalLongitude", "decimalLatitude")], proj4string=CRS(projection(bioclim)))
@@ -131,7 +131,7 @@ symbols(x=newdata$bio10, y=newdata$bio18, rectangles=matrix(rep(c(xdiff, ydiff),
 contour(x=unique(newdata$bio10), y=unique(newdata$bio18), z=matrix(newdata$pred, nrow=np), add=T, levels=unique(round(cInt$brks,1)), labcex = 1.3)
 mtext("Cicendia filiformis", side=3, line=-1.3, font=3)
 mtext(paste0("AUC = " , round(e@auc, 2), " "), side=1, line=-2.3, adj=1)
-mtext(paste0("Pearson r² = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
+mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
 
 ### Q: Is this response curve reasonable? Why?
 
@@ -147,7 +147,7 @@ points(presences_europe, pch=16, cex=0.1, col="black")
 plot(europe, add=T)
 mtext("Cicendia filiformis", side=3, line=-1.3, font=3)
 mtext(paste0("AUC = " , round(e@auc, 2), " "), side=1, line=-2.3, adj=1)
-mtext(paste0("Pearson r² = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
+mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
 ### Add legend!
 
 ### Climate change projection ####

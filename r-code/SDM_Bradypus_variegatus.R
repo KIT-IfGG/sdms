@@ -107,7 +107,7 @@ par(mfrow=c(2,2))
 plot(p.m1, main=class(m1)[1])
 plot(p.bc, main=class(bc)[1])
 plot(p.me, main=class(me)[1])
-plot(p.brt, , main=class(brt)[1])
+plot(p.brt, main=class(brt)[1])
 dev.off()
 
 graphics.off()  ### Close all graphic devices
@@ -176,7 +176,7 @@ th <- ths$kappa   ### e.g. use kappa statistics
 bradypus_distribution <- p.bc 
 bradypus_distribution[bradypus_distribution[]<th] <- 0
 x11()
-plot(bradypus_distribution, main=round(th,2))
+plot(bradypus_distribution, main=round(th,2), col=heat.colors(10))
 
 ### Variable importance ####
 library(hier.part)
