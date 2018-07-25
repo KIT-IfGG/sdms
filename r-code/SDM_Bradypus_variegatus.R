@@ -197,7 +197,7 @@ summary(bc)
 
 ### Part III ####
 
-### Validation: k-fold data partitioning ####
+### Validation: k-fold data partitioning for BC ####
 pres <- sdmdata[sdmdata[,1] == 1, 2:9]
 back <- sdmdata[sdmdata[,1] == 0, 2:9]
 
@@ -219,4 +219,27 @@ round(sd(auc),2)
 round(median(auc),2)
 round(cv(auc),2)
 
+
+### Validation: k-fold data partitioning for ME ####
+bradypus   ### presences
+background <- randomPoints(predictors[[1]], 1000) ### background ("absences")
+predictors ### "Bioclim dataset"
+
+k <- 5
+group <- kfold(bradypus, k)
+
+e <- list()
+for (i in 1:k) {
+  train <- bradypus[group != i,]    # calibration dataset, training data
+  test <- bradypus[group == i,]    # test dataset, validation dataset
+  me <- maxent(predictors, train, background)
+  e[[i]] <- evaluate(p=test, a=background, model=me, x=predictors)
+}
+
+auc <- sapply(e, function(x) x@auc)
+round(mean(auc),2)
+round(sd(auc),2)
+
+round(median(auc),2)
+round(cv(auc),2)
 
