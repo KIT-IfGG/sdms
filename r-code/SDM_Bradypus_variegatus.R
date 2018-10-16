@@ -1,8 +1,8 @@
-### WS2014/15 Modellbildung, Klara Dolos
+### Author: Klara Dolos
 ### Calculate species distribution models using R package dismo.
 #install.packages(c("raster", "rgdal", "dismo", "rJava", "gbm", "maptools"))
 ### To run MaxEnt you need to install the packages below. You might need to
-### install or update also Java. You need to READ THE ERROR MESSAGES R provides you
+### Install or update also Java. You need to READ THE ERROR MESSAGES R provides you
 ### and follow the suggestions made. You will probably need some time to get
 ### through all of this, so do this at home with a good internet connection!
 ### When these packages can be loaded, execute the code untill the 
@@ -15,6 +15,7 @@ library(gbm)
 library(maptools)
 
 library(corrplot)
+library(hier.part)
 
 
 ### Part I ####
@@ -77,7 +78,7 @@ corrplot(cor(sdmdata[,1:8]), type= "lower", diag=FALSE)
 ### Model fitting using different model types ####
 ### Algorithms require different data structure, i.e. sdmdata, predictors, bradypus.
 
-### Logistic regression (should be used with with PA-data!)
+### Logistic regression (should be used with PA-data!)
 m1 <- glm(pb ~ bio1 + bio5 + bio12, data=sdmdata, family=binomial)
 summary(m1)
 
@@ -139,7 +140,7 @@ grid()
 pcol <- rgb(0,0,1,0.4)
 acol <- rgb(1,0,0,0.6)
 hist(dat$pred[dat$pb==0], col=acol, border="red", freq=F, main="")
-hist(dat$pred[dat$pb==1], add=TRUE, , col=pcol, border="white", , freq=F)
+hist(dat$pred[dat$pb==1], add=TRUE, , col=pcol, border="white" freq=F)
 legend("topright", legend=c("Presences", "Absences"), col=c(pcol, acol), pch=15, pt.cex=2)
 grid()
 box()
@@ -173,13 +174,15 @@ ths <- threshold(e); ths
 th <- ths$kappa   ### e.g. use kappa statistics
 
 ### Plot species distribution using a threshold ####
+mycolors <- c("lightgrey", "blue")
 bradypus_distribution <- p.bc 
 bradypus_distribution[bradypus_distribution[]<th] <- 0
+bradypus_distribution[bradypus_distribution[]>=th] <- 1
 x11()
-plot(bradypus_distribution, main=round(th,2), col=heat.colors(10))
+plot(bradypus_distribution, main=paste0("Threshold = ", round(th,2)), col=mycolors, legend=FALSE)
+legend("topright", legend=c("Bradypus habitat", "No habitat"), col=mycolors, pch=15)
 
 ### Variable importance ####
-library(hier.part)
 
 ### GLM: Numbers given in the table and figure.
 hp <- hier.part(sdmdata$pb, sdmdata[,c("bio1", "bio5", "bio12")], family=binomial)
@@ -191,6 +194,7 @@ me
 
 ### BRT: Numbers given in the table and figure.
 summary(brt) 
+str(summary(brt))
 
 ### BioClim: ...?
 summary(bc) 
@@ -219,8 +223,7 @@ round(sd(auc),2)
 round(median(auc),2)
 round(cv(auc),2)
 
-
-### Validation: k-fold data partitioning for ME ####
+### Validation: k-fold data partitioning for ME incl. preditions ####
 bradypus   ### presences
 background <- randomPoints(predictors[[1]], 1000) ### background ("absences")
 predictors ### "Bioclim dataset"
@@ -233,7 +236,10 @@ for (i in 1:k) {
   train <- bradypus[group != i,]    # calibration dataset, training data
   test <- bradypus[group == i,]    # test dataset, validation dataset
   me <- maxent(predictors, train, background)
-  e[[i]] <- evaluate(p=test, a=background, model=me, x=predictors)
+  e[[i]] <- evaluate(p = test, a = background, model = me, x = predictors)
+  
+  p.me <- predict(predictors, me)
+  writeRaster(p.me, file = paste0("figures/validation_me/pred_", i, ".tif"), overwrite=TRUE)
 }
 
 auc <- sapply(e, function(x) x@auc)
@@ -243,3 +249,8 @@ round(sd(auc),2)
 round(median(auc),2)
 round(cv(auc),2)
 
+### Prediction uncertainty based on k-fold cross-validation ####
+rfis <- list.files("figures/validation_me", full = T)
+p.mes <- stack(rfis)
+cv.map <- calc(p.mes, cv)
+plot(cv.map, col=heat.colors(5), main="CV for predictions")

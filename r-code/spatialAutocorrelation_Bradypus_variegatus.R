@@ -13,12 +13,12 @@ library(classInt)
 ### Path to the example species data.
 file <- paste(system.file(package="dismo"), "/ex/bradypus.csv", sep="")
 file
-# read it
+### Read the file
 bradypus <- read.table(file, header=TRUE, sep=",")
 head(bradypus)
 
 
-# we only need columns 2 and 3:
+### We only need columns 2 and 3:
 bradypus <- bradypus[,2:3]
 head(bradypus)
 
@@ -52,7 +52,6 @@ bradypus_pa$residuals <- bradypus_pa$pa  - bradypus_pa$fitted
 boxplot(fitted ~ pa, bradypus_pa)
 
 ### Plot residuals in space ####
-
 ### For all data
 nc <- 10
 pt.cex <- 0.5
@@ -71,5 +70,5 @@ plot(lat ~ lon, data=bradypus_pa[bradypus_pa$pa == 1,], col=colorRampPalette(c("
 cg <- correlog(bradypus_pa$lon, bradypus_pa$lat, bradypus_pa$residuals, increment=200, resamp=100, na.rm = TRUE, latlon = TRUE)
 plot(cg$mean.of.class, cg$correlation, pch=16, col=ifelse(cg$p < 0.05, "red", "black"), xlab = "Distance", ylab="Spatial autocorrelation")
 abline(h=0, col="blue")
-legend("topright", legend=c("Sign.", "non sign"), col=c("red", "black"), pch=16)
+legend("topright", legend=c("Sign.", "non sign."), col=c("red", "black"), pch=16)
 

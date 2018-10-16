@@ -1,6 +1,21 @@
-### Install the R-package ###
+### Install R-packages ###
 #install.packages("rgbif")
-### This might result in an error message. Install the suggested packages AND update other missing programms on you computer.
+### This might result in an error message. Install the suggested
+### packages AND update other missing programms on you computer.
+### Install all R-packages (on by one and check for errors) which
+### are used in this course.
+
+### RStudio global options:
+### Restore .RData into workspace at startup -> uncheck!!!
+### You might want to use "soft wrapping" of your R code.
+
+### This is an example code to be used in class to prevent
+### to many individual issues with erroneous paths, wrong file names.
+### You need to restructure this code for your project, e.g. split into 
+### 1_data_preparation.R, 2_variable_selection.R, 3_validation.R etc. 
+### Each R-script needs to be executable by its own, i.e. read in
+### all data needed, do not use workspace objects.
+
 library(rgbif)
 library(raster)
 library(dismo)
@@ -37,6 +52,7 @@ projection(wrld_simpl) <- projection(bioclim)
 
 ### ALWAYS plot the data to see if everything is ok!
 plot(bioclim)
+dev.off()
 
 ### Create spatial points dataframe
 presences <- SpatialPoints(presences[,c("decimalLongitude", "decimalLatitude")], proj4string=CRS(projection(bioclim)))
@@ -56,6 +72,8 @@ points(decimalLatitude ~ decimalLongitude, data=presences, pch=16, cex=0.5, col=
 
 saveRDS(europe, "data/euro_shp.rds")
 
+### Alternative: Use function extent() to define a region and crop with a rectangle.
+
 ### Exclude presence data outside the region ####
 presences_europe <- presences[is.na(over(europe, presences)),]  
 
@@ -71,9 +89,8 @@ saveRDS(bioclim_europe, "data/bioclim_euro.rds")
 
 ### Create background points for the model ####
 background <- randomPoints(bioclim_europe, 20000)
-#me <- maxent(bioclim_europe, presences_europe@coords, background)
 
-### VARIABLE SELECTION ####
+### Variable selection ####
 ### Backward  selection +  ecological knowledge from literature. It is often resonable to use a temperature related and a precipitation related variable and not only t or p variables.
 ### Use variable importance and AUC for variable selection. Account for multicollinearity!
 
@@ -88,7 +105,6 @@ me <- maxent(bioclim_europe[[c("bio10", "bio18")]], p=presences_europe@coords, a
 ### Arguments of maxent: https://groups.google.com/forum/#!topic/maxent/yRBlvZ1_9rQ
 
 ### Model evaluation ####
-
 par(mfrow=c(1,2))
 plot(me1)
 plot(me)
@@ -147,7 +163,7 @@ points(presences_europe, pch=16, cex=0.1, col="black")
 plot(europe, add=T)
 mtext("Cicendia filiformis", side=3, line=-1.3, font=3)
 mtext(paste0("AUC = " , round(e@auc, 2), " "), side=1, line=-2.3, adj=1)
-mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
+  mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
 ### Add legend!
 
 ### Climate change projection ####
@@ -177,8 +193,19 @@ mtext("Cicendia filiformis ", 3,-1.2, font=3)
 mtext("WGS84 ", 1,-1.2, adj=1)
 dev.off()
 
-### Q: Is this expected change of distribution reasonably from an ecological perspective?
-### Q: Schould we add a legend? If yes, what's the problem and how does a legend make sense?
+### Q: Is this expected change of distribution reasonably from an ecological
+### perspective?
 
-### Uncertainty: Derive from validation, e.g. REPEATED DATA SPLITTING!!!
+### Q: Schould we add a legend? If yes, what's the problem and how does a
+### legend make sense?
+
+### Q: Prediction uncertainty: Derive from validation, e.g. k-fold 
+### cross-validation. Where is the prediction uncertainty higher/lower?
+
+### Q: Calculate future spatial distribution under the assumption of full 
+### dispersal and no dispersal. Which dispersal scenario will be more 
+### likely for your species?
+
+### Q: How looks the spatial autocorrelaiton in your data? Is is an issue 
+### to be dealt with?
 
