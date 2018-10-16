@@ -36,7 +36,7 @@ data(wrld_simpl)   ### Data provided by "maptools". Same as by getData, GADM.
 x11()
 plot(wrld_simpl)
 
-### Environmental data, predictirs ####
+### Environmental data, predictors ####
 ### BioClim data provided with the package dismo.
 files <- list.files(path=paste(system.file(package="dismo"),"/ex", sep=""), pattern="grd", full.names=TRUE )
 predictors <- stack(files)
