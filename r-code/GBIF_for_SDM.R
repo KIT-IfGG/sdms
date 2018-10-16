@@ -125,7 +125,7 @@ density(e)
 ### Response curves ####
 response(me)
 
-### 2D
+### 2D response curves, nicer but also more code ####
 np <- 30
 newdata <- expand.grid(bio10=seq(145, 200, len=np), bio18=seq(0, 240, len=np))
 newdata$pred <- predict(me, newdata)
