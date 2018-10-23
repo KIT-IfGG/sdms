@@ -1,13 +1,14 @@
 ### Author: Klara Dolos
 ### Calculate species distribution models using R package dismo.
-#install.packages(c("raster", "rgdal", "dismo", "rJava", "gbm", "maptools"))
 
-### To run MaxEnt you need to install the packages below. You might need to
+### To run MaxEnt you need to install some R-packages. You might need to
 ### Install or update also Java. You need to READ THE ERROR MESSAGES R provides you
 ### and follow the suggestions made. You will probably need some time to get
 ### through all of this, so do this at home with a good internet connection!
 ### When these packages can be loaded, execute the code untill the 
 ### flag "TESTING DONE" without errors.
+
+#install.packages(c("raster", "rgdal", "dismo", "rJava", "gbm", "maptools"))
 
 ### You need to know about working directories and how to work with RStudio projects!
 ### Please inform yourself using
