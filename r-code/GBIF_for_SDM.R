@@ -8,6 +8,7 @@
 ### RStudio global options:
 ### Restore .RData into workspace at startup -> uncheck!!!
 ### You might want to use "soft wrapping" of your R code.
+### Change your default package mirror to e.g. Göttingen.
 
 ### This is an example code to be used in class to prevent
 ### to many individual issues with erroneous paths, wrong file names.

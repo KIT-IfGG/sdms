@@ -229,9 +229,10 @@ for (i in 1:k) {
 auc <- sapply(e, function(x) x@auc)
 round(mean(auc),2)
 round(sd(auc),2)
+round(cv(auc),2)
 
 round(median(auc),2)
-round(cv(auc),2)
+
 
 ### Validation: k-fold data partitioning for ME incl. preditions ####
 bradypus   ### presences
@@ -255,9 +256,10 @@ for (i in 1:k) {
 auc <- sapply(e, function(x) x@auc)
 round(mean(auc),2)
 round(sd(auc),2)
+round(cv(auc),2)
 
 round(median(auc),2)
-round(cv(auc),2)
+
 
 ### Prediction uncertainty based on k-fold cross-validation ####
 rfis <- list.files("figures/validation_me", full = T)
