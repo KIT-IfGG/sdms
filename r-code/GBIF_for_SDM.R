@@ -73,9 +73,13 @@ points(decimalLatitude ~ decimalLongitude, data=presences, pch=16, cex=0.5, col=
 
 saveRDS(europe, "data/euro_shp.rds")
 
-### Alternative: Use function extent() to define a region and crop with a rectangle.
+### Alternative: Use function extent() to define a region and crop with a rectangle. Here an example for one layer. You can additionally mask the raster, often nicer.
+# ex <- extent(-31, 41, 27,81)
+# bioclim_ex <- crop(bioclim[[1]], ex)
+# plot(bioclim_ex)
 
 ### Exclude presence data outside the region ####
+### "presences" mut be a SpatialPoints object. See help for over()
 presences_europe <- presences[is.na(over(europe, presences)),]  
 
 x11()
@@ -103,7 +107,7 @@ background <- randomPoints(bioclim_europe, 20000)
 me1 <- maxent(bioclim_europe, presences_europe@coords, background)
 me <- maxent(bioclim_europe[[c("bio10", "bio18")]], p=presences_europe@coords, a=background) 
 
-### Arguments of maxent: https://groups.google.com/forum/#!topic/maxent/yRBlvZ1_9rQ
+### Arguments for maxent: https://groups.google.com/forum/#!topic/maxent/yRBlvZ1_9rQ
 
 ### Model evaluation ####
 par(mfrow=c(1,2))
@@ -132,10 +136,10 @@ newdata <- expand.grid(bio10=seq(145, 200, len=np), bio18=seq(0, 240, len=np))
 newdata$pred <- predict(me, newdata)
 
 ### Use threshold to show distribution
-newdata$pred[newdata$pred<thr$sensitivity] <- NA
+newdata$pred[newdata$pred < thr$sensitivity] <- NA
 
 ### Create classes of site suitability
-cInt <- classIntervals((newdata$pred))
+cInt <- classIntervals(newdata$pred, 7)
 
 xdiff <-diff(unique(newdata$bio10))[1]
 ydiff <-diff(unique(newdata$bio18))[1]
@@ -164,7 +168,7 @@ points(presences_europe, pch=16, cex=0.1, col="black")
 plot(europe, add=T)
 mtext("Cicendia filiformis", side=3, line=-1.3, font=3)
 mtext(paste0("AUC = " , round(e@auc, 2), " "), side=1, line=-2.3, adj=1)
-  mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
+mtext(paste0("Pearson r = " , round(e@cor, 2), " "), side=1, line=-1.3, adj=1)
 ### Add legend!
 
 ### Climate change projection ####
