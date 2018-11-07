@@ -80,7 +80,8 @@ saveRDS(europe, "data/euro_shp.rds")
 
 ### Exclude presence data outside the region ####
 ### "presences" mut be a SpatialPoints object. See help for over()
-presences_europe <- presences[is.na(over(europe, presences)),]  
+# presences_europe <- presences[is.na(over(europe, presences)),]
+presences_europe <- presences[europe]
 
 x11()
 plot(europe)
