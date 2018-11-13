@@ -15,7 +15,6 @@ xy <- data.frame(x.coord, y.coord)
 
 
 ### Environmental effect ####
-
 # Create environemntal variable
 #env.value <- rnorm(side*side, 0, 2)
 env.value <- 0.5 * xy$x.coord - 0.007 * xy$y.coord + 0.002 * xy$y.coord^2 
@@ -26,18 +25,18 @@ env.mat[] <- env.value
 r.env <- raster(env.mat)
 
 # Calculate response variable based on env
-z.value <- 0.2 + 0.9 * env.value + 0.2 * env.value^2 + rnorm(side*side, 0, 1)
+z.value <- 0.2 + 0.9 * env.value + 0.2 * env.value^2 + rnorm(side*side, 0, 2)
 my.mat[] <- z.value
-r <- raster(my.mat)
+r.response <- raster(my.mat)
 
 ### Plot environemental variable
-x11(width=10, height=5)
+x11(width=8, height=8)
 #pdf("env.pdf", width=10, height=5)
 par(mfrow=c(2,2))
 plot(r.env, axes=F, col=matlab.like(20), main="Environmental variable")
 
 ### Plot response variable ####
-plot(r, axes=F, col=matlab.like(20), main="Response variable")
+plot(r.response, axes=F, col=matlab.like(20), main="Response variable")
 
 #### Spatial effect ####
 # all paiwise euclidean distances between the cells
@@ -45,12 +44,11 @@ xy.dist <- dist(xy)
 # PCNM axes of the dist. matrix (from 'vegan' package)
 pcnm.axes <- pcnm(xy.dist)$vectors
 # using 8th PCNM axis as my atificial z variable
-z.space <- pcnm.axes[,8]*200 + rnorm(side*side, 0, 1)
-# plotting the artificial spatial data
+z.space <- pcnm.axes[,8]*20 + rnorm(side*side, 0, 1)
+# plotting the artificial spatial effect
 my.mat[] <- z.space
-r <- raster(my.mat)
-plot(r, axes=F, col=matlab.like(20))
-
+r.space <- raster(my.mat)
+plot(r.space, axes=F, col=matlab.like(20))
 
 ### Neighbours and their correlation ####
 xy.neigh <- dnearneigh(as.matrix(xy), d1=0, d2=4, longlat = FALSE)
@@ -70,12 +68,12 @@ cor(my.mat[1:length(my.mat)], my.mat[neigh_1st], method="kendall")
 ## -> Neighbours are corelated
 
 # Plot correlation
-r <- numeric()
-for (i in 1:10) r[i] <- cor(my.mat[1:length(my.mat)], my.mat[unlist(lapply(xy.neigh, function (x) x[i]))], method="pearson")
-plot(1:length(r), r, xlab="Order of Neighbourhood", ylab="Pearson r", type="h")
+spearman.cor <- numeric()
+for (i in 1:10) spearman.cor[i] <- cor(my.mat[1:length(my.mat)], my.mat[unlist(lapply(xy.neigh, function (x) x[i]))], method="spearman")
+plot(1:length(spearman.cor), spearman.cor, xlab="Order of Neighbourhood", ylab="Pearson r", type="h")
 
 ### Correlogram ####
-ncf.cor <- correlog(x.coord, y.coord, z.space, increment=2, resamp=100)
+ncf.cor <- correlog(x.coord, y.coord, z.space, increment=2, resamp=50)
 plot(ncf.cor)
 
 ### Create data with environmental and spatial effects ####
@@ -105,11 +103,11 @@ plot(r, axes=F, col=matlab.like(20))
 ### - > Residuals show clear spatial autocorrelation!
 
 ### Correlogram of residuals
-cor.resids <- correlog(x.coord, y.coord, residuals(my.lm), increment=2, resamp=100)
+cor.resids <- correlog(x.coord, y.coord, residuals(my.lm), increment=2, resamp=50)
 plot(cor.resids)
 
 ### Better model
-my.lm.space <- lm(z.value ~ env.value + I(env.value^2), data=dat, offset=z.space)   ### Offset is not really a way to deal with autocorrelation! better: coorelation structure
+my.lm.space <- lm(z.value ~ env.value + I(env.value^2), data=dat, offset=z.space)   ### Offset is not really a way to deal with autocorrelation! better: coorelation structure in a marginal model.
 summary(my.lm.space)
 
 ### Compare coefs with real values
@@ -117,7 +115,7 @@ round(coef(my.lm),2)
 round(coef(my.lm.space),2)
 c(0.2, 0.9, 0.2)
 
-cor.resids.space <- correlog(x.coord, y.coord, residuals(my.lm.space), increment=2, resamp=100)
+cor.resids.space <- correlog(x.coord, y.coord, residuals(my.lm.space), increment=2, resamp=50)
 x11()
 plot(cor.resids.space)
 
@@ -126,7 +124,7 @@ r <- raster(resid.mat)
 plot(r, axes=F, col=matlab.like(20))
 ### -> No spatial autocorrelation anymore :-).
 
-### Alternative packages for spatial autocor####
+### Alternative packages for spatial autocor ####
 # library(pgirmess)
 # pgi.cor <- correlog(coords=xy, z=z.value, method="Moran", nbclass=21)
 # 'nb' - neighbourhood of each cell
@@ -135,10 +133,12 @@ plot(r, axes=F, col=matlab.like(20))
 # r.nb <- cell2nb(nrow=side, ncol=side, type="queen")
 # sp.cor <- sp.correlogram(r.nb, z.value, order=15, method="I", randomisation=FALSE)
 
+### Marginal models ####
 ### Use correaltion structure for considering spatial autocorrelation of residuals.
 library(lme4)
 library(nlme)
-my_gls <- gls(z.value ~ env.value + I(env.value^2), data=dat, correlation=corGaus(form= ~ x.coord + y.coord))   ### Offset is not really a way to deal with autocorrelation! better: coorelation structure
+my_gls <- gls(z.value ~ env.value + I(env.value^2), data=dat, correlation=corGaus(form= ~ x.coord + y.coord))   ### Offset is not really a way to deal with autocorrelation! Better: correlation structure
+
 summary(my_gls)
 ### Compare coefs with real values
 round(coef(my_gls),2)
@@ -154,5 +154,4 @@ resid.mat[] <- residuals(my_gls)
 r <- raster(resid.mat)
 plot(r, axes=F, col=matlab.like(20))
 
-### This correlaiton is to compext for a simply correlaiton structure. There are other methods more suitable for this case.
-
+### This correlation is to strong/compex for a simply correlaiton structure. There are other methods more suitable for this case.
