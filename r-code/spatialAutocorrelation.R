@@ -13,7 +13,6 @@ x.coord <- rep(1:side, each=side)
 y.coord <- rep(1:side, times=side)
 xy <- data.frame(x.coord, y.coord)
 
-
 ### Environmental effect ####
 # Create environemntal variable
 #env.value <- rnorm(side*side, 0, 2)
@@ -25,8 +24,9 @@ env.mat[] <- env.value
 r.env <- raster(env.mat)
 
 # Calculate response variable based on env
-z.value <- 0.2 + 0.9 * env.value + 0.2 * env.value^2 + rnorm(side*side, 0, 2)
-my.mat[] <- z.value
+coeffs <- c(3, 0.9, 0.2)
+z.value_lin <- coeffs[1] + coeffs[2] * env.value + coeffs[3] * env.value^2 + rnorm(side*side, 0, 1)
+my.mat[] <- z.value_lin
 r.response <- raster(my.mat)
 
 ### Plot environemental variable
@@ -38,13 +38,21 @@ plot(r.env, axes=F, col=matlab.like(20), main="Environmental variable")
 ### Plot response variable ####
 plot(r.response, axes=F, col=matlab.like(20), main="Response variable")
 
-#### Spatial effect ####
+### Linear regression ####
+dat_lin <- data.frame(env.value, z.value_lin)
+m <- lm(z.value_lin ~ env.value + I(env.value^2), dat_lin)
+round(coef(m), 1)
+coeffs
+### -> Parameters used to create the data can be found by lm.
+
+### Spatial effect ####
 # all paiwise euclidean distances between the cells
 xy.dist <- dist(xy)
 # PCNM axes of the dist. matrix (from 'vegan' package)
 pcnm.axes <- pcnm(xy.dist)$vectors
 # using 8th PCNM axis as my atificial z variable
-z.space <- pcnm.axes[,8]*20 + rnorm(side*side, 0, 1)
+z.space <- pcnm.axes[,8]*100 + rnorm(side*side, 0, 1)
+z.space <- scale(z.space, center=TRUE, scale=FALSE)
 # plotting the artificial spatial effect
 my.mat[] <- z.space
 r.space <- raster(my.mat)
@@ -73,11 +81,11 @@ for (i in 1:10) spearman.cor[i] <- cor(my.mat[1:length(my.mat)], my.mat[unlist(l
 plot(1:length(spearman.cor), spearman.cor, xlab="Order of Neighbourhood", ylab="Pearson r", type="h")
 
 ### Correlogram ####
-ncf.cor <- correlog(x.coord, y.coord, z.space, increment=2, resamp=50)
+ncf.cor <- correlog(x.coord, y.coord, z.space, increment=2, resamp=10)
 plot(ncf.cor)
 
 ### Create data with environmental and spatial effects ####
-z.value <- z.space + z.value
+z.value <- z.space + z.value_lin
 my.mat[] <- z.value
 r.z <- raster(my.mat)
 
@@ -87,7 +95,8 @@ plot(r.z, axes=F, col=matlab.like(20))
 dev.off()
 
 ### MODELS ####
-dat <- data.frame(z.value=z.value, env.value=env.value)
+dat <- data.frame(z.value = z.value, env.value = env.value)
+
 my.lm <- lm(z.value ~ env.value + I(env.value^2), data=dat)
 summary(my.lm)
 
@@ -103,7 +112,7 @@ plot(r, axes=F, col=matlab.like(20))
 ### - > Residuals show clear spatial autocorrelation!
 
 ### Correlogram of residuals
-cor.resids <- correlog(x.coord, y.coord, residuals(my.lm), increment=2, resamp=50)
+cor.resids <- correlog(x.coord, y.coord, residuals(my.lm), increment=2, resamp=10)
 plot(cor.resids)
 
 ### Better model
@@ -113,9 +122,10 @@ summary(my.lm.space)
 ### Compare coefs with real values
 round(coef(my.lm),2)
 round(coef(my.lm.space),2)
-c(0.2, 0.9, 0.2)
+coeffs
 
-cor.resids.space <- correlog(x.coord, y.coord, residuals(my.lm.space), increment=2, resamp=50)
+cor.resids.space <- correlog(x.coord, y.coord, residuals(my.lm.space), increment=2, resamp=10)
+
 x11()
 plot(cor.resids.space)
 
@@ -137,15 +147,16 @@ plot(r, axes=F, col=matlab.like(20))
 ### Use correaltion structure for considering spatial autocorrelation of residuals.
 library(lme4)
 library(nlme)
+dat <- cbind.data.frame(dat, xy)
 my_gls <- gls(z.value ~ env.value + I(env.value^2), data=dat, correlation=corGaus(form= ~ x.coord + y.coord))   ### Offset is not really a way to deal with autocorrelation! Better: correlation structure
 
 summary(my_gls)
 ### Compare coefs with real values
-round(coef(my_gls),2)
-c(0.2, 0.9, 0.2)
+round(coef(my_gls),1)
+coeffs
 
 ### Correlagramm
-cor.resids <- correlog(x.coord, y.coord, residuals(my_gls), increment=2, resamp=20)
+cor.resids <- correlog(x.coord, y.coord, residuals(my_gls), increment=2, resamp=10)
 plot(cor.resids)
 
 ### Plot residuals in space
@@ -155,3 +166,18 @@ r <- raster(resid.mat)
 plot(r, axes=F, col=matlab.like(20))
 
 ### This correlation is to strong/compex for a simply correlaiton structure. There are other methods more suitable for this case.
+
+### Spatial Eigenvectors (SEVM) ####
+# Correcting for spatial autocorrelation using Spatial Eigenvectors (SEVM)
+# Various other methods explained in the Dormann et al. 2007 paper
+
+# Identify neighbors
+xy.neigh <- dnearneigh(as.matrix(xy), d1=0, d2=10, longlat = FALSE)
+# Checken ob irgendein Punkt nicht angebunden ist
+summary(xy.neigh)
+xy.neigh_w <- nb2listw(xy.neigh)
+res <- ME(z.value ~ env.value, dat, family = gaussian, listw = xy.neigh_w)
+dat <- cbind.data.frame(dat, fitted(res))
+m <- lm(z.value ~ env.value + I(env.value^2) + vec4 + vec5 + vec10 + vec7, data = dat)
+m
+coeffs
