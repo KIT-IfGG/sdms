@@ -1,0 +1,75 @@
+---
+title: "Modeled species distribution differes among algorithms"
+output: html_document
+author: Maximiliane Musterfrau
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Abstract
+
+max 300 wrds summary. About 2 Sentences for each background, methods, results, discussion, conclusion
+
+Keywords (3 to 7): 
+
+# Introduction
+
+* Why species distribution modeling?
+* Why different algorithms (in this example!)
+* Basics on selected species
+* Define research questions or hypothesis!!
+
+# Methods
+
+## Study region and species
+
+* Climate, topography, i.e. geographical description of study area
+* Species needs and properites, usage etc.
+* Instert map of the region with presence points?
+* Instert png with foto of speices
+
+## Dataset
+
+* Data sources
+* Resolution
+* Sample size
+* Exclusion of points etc.
+
+## Model
+
+* Algorithm used (MaxEnt, BRT...)
+* Type of model quality measures used
+* Variable selection procedure (cor, backward/forewads selection, ...)
+* Table with all variable combinations tried and model quality measures
+* Validation prodecure (bootstapping, 10-fold-crossvalidation, ...)
+
+## Model projections
+
+* Current/future?
+* Regions?
+* Area sums?
+
+# Results
+
+* Results of variable selection and final model
+* Model validation and model quality assessment
+* Ecological model results incl. projections to climate change scenario or another other region
+
+# Discussion
+
+* Start with main result = brief answer to your main research question
+* Methods critique
+* Ecological validation of modeled niche
+* Ecological consequences of results
+
+# Conclusion
+
+* NOT a summary of findings or discussion!!!!
+* What did I learn and want the community to also know?
+* What needs to be considered by practitioners?
+* Which topics/issues should future research address?
+
+# References

@@ -77,7 +77,7 @@ dat <- cbind.data.frame(dat, biodat)
 
 ### Spatial project ####
 xy <- SpatialPoints(dat[,c("lon", "lat")], CRS(projection(predictors)))
-xy <- spTransform(xy, CRS("+init=epsg:2317"))
+#xy <- spTransform(xy, CRS("+init=epsg:2317"))
 xy <- spTransform(xy, CRS("+init=epsg:6610"))
 
 plot(xy)
@@ -108,7 +108,7 @@ corrplot(cor(cbind(pa=dat$pa, m1=fitted(m1), m2=fitted(m2), m3=fitted(m3)), meth
 
 ### m2 ###
 summary(m2)  ### "range" - in m
-corr_range <- 16725.6
+corr_range <- 32029.06 
 dat$residuals <- resid(m2)
 
 ncf.cor <-  correlog(dat$x, dat$y, dat$residuals, increment = 2000, resamp = 100, na.rm = TRUE, latlon = FALSE)
@@ -120,7 +120,7 @@ legend("bottomright", legend=c("Sign.", "non sign."), col=c("red", "black"), pch
 
 ### m3 ####
 summary(m3)
-corr_range_lin <- 2856692
+corr_range_lin <- 968264.8
 
 dat$residuals <- resid(m3)
 ncf.cor <- correlog(dat$x, dat$y, dat$residuals, increment = 2000, resamp = 100, na.rm = TRUE, latlon = FALSE)
@@ -134,8 +134,8 @@ legend("bottomright", legend=c("Sign.", "non sign."), col=c("red", "black"), pch
 e1 <- evaluate(dat[dat$pa == 1,c("lon", "lat")], dat[dat$pa == 0,c(c("lon", "lat"))], m1, predictors)
 e3 <- evaluate(dat[dat$pa == 1,c("lon", "lat")], dat[dat$pa == 0,c(c("lon", "lat"))], m3, predictors)
 
-thr1 <- threshold(e1)$kappa
-thr3 <- threshold(e3)$kappa
+thr1 <- threshold(e1)$equal_sens_spec
+thr3 <- threshold(e3)$equal_sens_spec
 
 pred1 <- predict(predictors_m[[c("bio1", "bio12")]], m1)
 pred3 <- predict(predictors_m[[c("bio1", "bio12")]], m3)

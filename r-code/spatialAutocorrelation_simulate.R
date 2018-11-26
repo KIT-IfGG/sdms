@@ -1,6 +1,6 @@
 library(spdep)
 library(akima)
-library(rgl)
+#library(rgl)
 library(ncf)
 library(nlme)
 
@@ -55,6 +55,7 @@ BIC(m2)
 
 summary(m1)
 summary(m2)
+coeffs[3]
 
 points$residuals <- resid(m2)
 
