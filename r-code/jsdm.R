@@ -2,7 +2,7 @@ library(gjam)
 library(vegan)
 library(classInt)
 
-### Das ist ein Beispiel  
+### Das ist ein Beispiel  ### das ist nicht richtig
 
 ### Read data ####
 veg <- read.table("data/kreuz.txt")
