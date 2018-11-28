@@ -57,7 +57,7 @@ n <- 20
 newdata <- expand.grid(DDSUMLuft = seq(min(dat$xdata$DDSUMLuft), max(dat$xdata$DDSUMLuft), len = n), WG.min10 = seq(min(dat$xdata$WG.min10), max(dat$xdata$WG.min10), len = n))
 
 species_pred <- gjamPredict(output = out, newdata = list(xdata = newdata))
-#saveRDS(species_pred, file="data/species_preds.rds")
+#saveRDS(species_pred, file="results/species_preds.rds")
 newdata <- cbind.data.frame(newdata, species_pred$sdList$yMu)
 
 ### Select species
@@ -74,7 +74,7 @@ points(x = dat$xdata$DDSUMLuft, y = dat$xdata$WG.min10, col=ifelse(veg[,sp] > 0,
 mtext(sp, 3, -1.5)
 
 ### Loop for all species ####
-pdf("data/jsdm_species_response.pdf", height = 9, width = 6)
+pdf("figures/jsdm_species_response.pdf", height = 9, width = 6)
 par(mfrow=c(3,2))
 for(i in 3:ncol(newdata)) {
   sp <- colnames(newdata)[i]  
