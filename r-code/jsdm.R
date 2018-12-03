@@ -36,10 +36,10 @@ dat$formula <- as.formula("~ DDSUMLuft + WG.min10")
 dat$xdata <- env[,c("DDSUMLuft", "WG.min10")]
 dat$ydata <- veg
 
-ml  <- list(ng = 1000, burnin = 1000, typeNames = "CA")
+ml  <- list(ng = 2000, burnin = 1000, typeNames = "CA")
 
 out <- gjam(dat$formula, dat$xdata, dat$ydata, modelList = ml)
-saveRDS(out, "data/jsdm_out.rds")
+saveRDS(out, "figures/jsdm_out.rds")
 
 ### Mini - assessment ####
 species_fit <- gjamPredict(output = out, newdata = list(xdata = dat$xdata))
