@@ -2,6 +2,7 @@ library(gjam)
 library(vegan)
 library(classInt)
 
+
 ### Read data ####
 veg <- read.table("data/kreuz.txt")
 env <- read.table("data/env.txt")
